@@ -625,12 +625,15 @@ def writeMXEtoCSV(main_table: list, templates:list, out_csv_directory: str, xlb_
     uniq_templates = { str(entry[2][1].split(':')[0]) for entry in main_table }
 
     for templ_name in uniq_templates:
+        template_list = [ s for s in templates if s[0] == templ_name]
+        if len(template_list) == 0:
+            print("No templates found for record type: " + templ_name + ". No CSV will be written")
+            continue
         out_csv_file = os.path.join(out_csv_directory, templ_name + ".csv")
         with open(out_csv_file, 'w', newline='', encoding='shift-jisx0213') as out_csv:
             writer = csv.writer(out_csv, delimiter=',', quotechar='"')
-            
             # write template to 1st row
-            template = [ s for s in templates if s[0] == templ_name][0]
+            template = template_list[0]
             row = [ 'RecordId', 'InternalName' ]
             for t in template[1]:
                 if (t[1] == ''):
