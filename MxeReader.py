@@ -798,6 +798,8 @@ if args.single_csv is not None:
 if args.xlb_path is None:
     xlb_path=os.path.join(os.path.dirname(args.mxe_path),'text_mx.xlb')
     print("No XLB path specified, defaulting to: " + xlb_path)
+else:
+    xlb_path = args.xlb_path
 
 if args.log is None:
     debug_log=os.path.join(os.path.dirname(args.mxe_path),'write_log.txt')
