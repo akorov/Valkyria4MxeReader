@@ -758,7 +758,7 @@ parser = argparse.ArgumentParser(description="Script for reading and editing mai
 parser.add_argument("mxe_path", type=str)
 parser.add_argument("mode", choices=[ 'R', 'T', 'W', 'D' ], help="R: read mode - output MXE file to CSV\r\nT: test mode - apply CSV to MXE in-memory only\r\nW: write mode - apply CSV to MXE and write out the result.\r\nD: dummy mode, will only attempt to read templates, xlb and MXE into memory")
 parser.add_argument("-t", "--template-csv-path", type=str, help="Path to a CSV file containing record templates.")
-parser.add_argument("-d", "--csv-dir", type=str, help="Path to directory for CSV files. In this directory:\r\n  - Read mode will save CSV output\r\n  - Test and Write modes will look for files to apply to MXE.")
+parser.add_argument("-d", "--csv-dir", type=str, help="Path to directory for CSV files. In this directory:\r\n  - Read mode will save CSV output\r\n  - Test and Write modes will look for files to apply to MXE\r\nThis will only be applied if -s is not specified")
 parser.add_argument("-s", "--single-csv", type=str, help="Path to a single CSV file. Test and Write modes will apply this one file to MXE.\r\nIf both -d and -s are specified, directory is applied first, and then single file on top")
 parser.add_argument("-x", "--xlb-path", type=str, help="Path to xlb file with text data to resolve MXE text IDs into human-readable stuff, like character and weapon names. Only 'text_mx.xlb' is currently supported (with horrible hacks).")
 parser.add_argument("-q", "--quiet", action="store_true", help="Suppress debug logging write MXE mode")
@@ -847,15 +847,15 @@ if args.mode=="R":
     
 # apply CSV to MXE
 if args.mode=="W" or args.mode=="T":
-    # apply directory
-    if(csv_directory != ""):
+    #apply directory
+    if(csv_directory != "" and csv_path == ""):
         print("Applying CSV dir " + csv_directory + " to mxe in-memory")
         try:
             applyCSVDIRtoMXE(main_table,templates, csv_directory)
         except:
             print("Error:", sys.exc_info())
             exit()
-    # apply single CSV
+    #apply single CSV
     if(csv_path != ""):
         print("Applying single CSV " + csv_path + " to mxe in-memory")
         try:

@@ -36,10 +36,10 @@ options:
   -d CSV_DIR, --csv-dir CSV_DIR
                         Path to directory for CSV files. In this directory:
                           - Read mode will save CSV output
-                          - Test and Write modes will look for files to apply to MXE.
+                          - Test and Write modes will look for files to apply to MXE
+                        This will only be applied if -s is not specified
   -s SINGLE_CSV, --single-csv SINGLE_CSV
                         Path to a single CSV file. Test and Write modes will apply this one file to MXE.
-                        If both -d and -s are specified, directory is applied first, and then single file on top
   -x XLB_PATH, --xlb-path XLB_PATH
                         Path to xlb file with text data to resolve MXE text IDs into human-readable stuff, like character and weapon names. Only 'text_mx.xlb' is currently supported (with horrible hacks).
   -q, --quiet           Suppress debug logging write MXE mode
