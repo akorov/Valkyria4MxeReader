@@ -1,0 +1,23 @@
+{
+    "MXE_SETTINGS": {
+        "MXE_ADDRESS_OFFSET": 64,
+        "MAIN_TABLE_COUNT_ADDR": 200,
+        "MAIN_TABLE_STARTADDR_ADDR": 224,
+        "TOC_ENTRY_SIZE": 32,
+        "TOC_ENDIANNESS": "<",
+        "TOC_FIELD_ID": 0,
+        "TOC_FIELD_TYPE": 4,
+        "TOC_FIELD_TYPENAME_ADDR": 8,
+        "TOC_FIELD_RECORD_ADDR": 16,
+        "RESOLVE_CLASSIC_POINTERS": true,
+        "RESOLVE_XLB_POINTERS": true,
+        "RESOLVE_XLB_STRINGS": true
+    },
+    "OUTPUT_MODIFIERS": {
+        "FORCE_HEX_OUTPUT": false,
+        "FORCE_RAW_CLASSIC_POINTERS": false,
+        "FORCE_RAW_XLB_POINTERS": false,
+        "FORCE_XLB_IDS": false
+    }
+}
+
