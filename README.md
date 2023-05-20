@@ -55,22 +55,29 @@ After extracting .mxe and .xlb, put them in the same place as VlMx_entry_templat
 
 Assuming you have python installed and associated properly:
 1) read records with default parameters and output CSVs under F:\\test:\\game_info - original\\ *.csv
+
 `.\MxeReader.py "F:\\test\\game_info.mxe" R`
 
 2) read records with manually specifying a different output location
+
 `.\MxeReader.py "F:\\test\\game_info.mxe" R -d "F:\\some_other_dir"`
 
 3) read records with manually specifying a different template file
+
 `.\MxeReader.py "F:\\test\\game_info.mxe" R -t "F:\\some\\other\\place\\my_mxe_templates.csv"`
 
 4) read records with a different config file. Maybe you want to force hex output for all data.
+
 `.\MxeReader.py "F:\\test\\game_info.mxe" R -c "F:\\path\\to\\new\\config.json"`
 
 5) try applying your changes in csv files to mxe to look for crahses (no writing, no risk of breaking stuff)
+
 `.\MxeReader.py "F:\\test\\game_info.mxe" T`
 
 6) write out the mxe with default locations for everything and a backup produced
+
 `.\MxeReader.py "F:\\test\\game_info.mxe" W -b`
 
 7) run a dummy execution which will only try to parse arguments and read MXE into memory
+
 `.\MxeReader.py "F:\\test\\game_info.mxe" D`
