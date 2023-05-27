@@ -21,7 +21,7 @@ VlMxJobInfo,<i:Faction,<i:id,<pi:InitiateName,<i,<pi:EliteName,<i,<pi:ParagonNam
 VlMxMapObjectCommonInfo,>h,<f,<f,>h,>h,>h,>h,>h
 VlMxMapObjectInfo,<i:id,>h,<pi:TerrainName,>h,<i,<i,<i,<i,<i,<i,<i,<i,<i,<i,<i,<i
 VlMxMoraleInfo,<f:defPass,<f:vspPass,<f:BlastPass,<f,<f,<i2:Kill,<i2:Tank,<i2:Camp,<i2:Heal,<i2,<i2
-VlMxOrderInfo,<i,<i,<pi:Name,>h,<pi:Description,>h,<i,<i,<i,<i,<i,<i,<i,<i,<i,<i,<i,<i,<i,<i,<i,<i,<i,<i,<i,<i,<i,<i
+VlMxOrderInfo,<i,i1:CP,i1:LimitGroup?,<i2,<pi:Name,<i,<pi:Description,<i,<i:Targeting,<i,<i,<i,<i,<i,<i2:Value,<i2,<i,<i:SpEffect,<i,<i,<i,<i,<i,<i:Class,<i:Level,<i:XPCost,<i,<i,<i:TextureID,<i:Icon?,<i
 VlMxParameterConvertTable,<f,<f,<f,<f,<f,<f,<f,<f:SandbagMod,<f:GrassMod,<f:DodgeMod,<f:CampMod,<f:BaseCampMod,<f:InterceptionMod,<f,<f:FriendlyFireMod,<f,<f,<f,<f,<f:HeightIncrement,<i,<f:HeightMod,<f:HeadshotMod,<f,<f,<f,<f,<f,<f,<f,<f,<f,<f,<f,<f,<f,<f,<f,<f,<f,<f,<f,<f,<f,<f,<f,<f:TurretHeadshotArmorMod,<f:ChallengeSkirmish1AllDmgMod
 VlMxPotentialInfo,<i:id,<i:SpEffect,<pi:Name,<i,<pi:LongDescription,<i,<pi:EffectDescription,<i,i1:Acc,i1:Evd,i1:vsP,i1:vsA,i1:Def,i1:Bul,i1:HP%,i1:Rng,i1:Heal,i1:Rep,<i2,<i:Type,>h:PosIcons,>h:NegIcons,<i:Trigger,<f:Chance,<f:SpEffStrength,<i:Priority,>h,<i
 VlMxRareWeaponTableInfo,<i:WeaponType,<i:TierId1,<i:TierId2,<i:TierId3,<i:TierId4,<i:TierId5,<i:WeaponID1,<i:WeaponID2,<i:WeaponID3,<i:WeaponID4,<i:WeaponID5,>h
