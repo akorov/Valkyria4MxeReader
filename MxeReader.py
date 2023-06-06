@@ -116,6 +116,7 @@ def bytesAsLEFloat(buf):
     # else:
     #     return round(res,2)
     return round(struct.unpack_from("<f", buf, 0)[0],2)
+    #return struct.unpack_from("<f", buf, 0)[0]
 
 # see comment above
 def bytesAsBEFloat(buf):
@@ -125,6 +126,7 @@ def bytesAsBEFloat(buf):
     # else:
     #     return round(res,2)
     return round(struct.unpack_from(">f", buf, 0)[0],2)
+    #struct.unpack_from(">f", buf, 0)[0]
 
 def bytesAsLEHex(buf):
     s = '0x'
@@ -410,6 +412,9 @@ def readXLB(file_path: str, encoding:str="shift_jisx0213"):
             if (rec_id2 == 160312 and prev_id2 == 160248):
                 currRec = 0
                 #print("JobInfo->VehicleDev transition fix") 
+            if (rec_id2 == 168600 and prev_id2 == 168472):
+                currRec = 0
+                #print("ForceInfo->CharacterEach transition fix") 
             if (rec_id2 == 177416 and prev_id2 == 175880):
                 currRec = 1
                 #print("VehicleAffiliation->Ranks transition fix")
