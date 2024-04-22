@@ -311,7 +311,7 @@ def readStr(file, startpos: int, backseek: int, encoding: str="shift_jisx0213"):
     bytearr = readZeroDelBytes(file, startpos, backseek)
     return codecs.decode(bytearr,encoding)
 
-def readXLB(file_path: str, encoding:str="shift_jisx0213"):
+def readXLB(file_path: str, encoding:str="shift_jisx0213", fixes:str="game_info.mxe", debug_print:bool=False):
     """
         Hopefully read XLB text file. Format is a bit magical to me, so there are lv.80 manual parsing-based crutches involved.
         General rules seem to be:
@@ -336,7 +336,6 @@ def readXLB(file_path: str, encoding:str="shift_jisx0213"):
     """
     print("Reading XLB file: " + file_path)
     f=open(file_path,"rb")
-    
     data = []
     f.seek(0x4)
     typeCount = bytesAsLEInt(f.read(4))
@@ -358,12 +357,16 @@ def readXLB(file_path: str, encoding:str="shift_jisx0213"):
         # add everything to data
         data.append( [ rec_header, records] )
 
+    if debug_print: print("Read categories, found count=" + str(len(data)))
+
     # read actual data
     chnkhead = bytesAsString(f.read(4))
     if chnkhead != "CHNK":
         print("Error reading XLB, expected CHNK after TOC at position " + str(f.tell()-4))
         return data
     recordCount = bytesAsLEInt(f.read(4))
+
+    if debug_print: print("Start reading CHNK, found recordCount=" + str(recordCount))
 
     currHeader = 0 # header in data we currently write to
     currRec = 0    # record in header we currently write to
@@ -376,6 +379,9 @@ def readXLB(file_path: str, encoding:str="shift_jisx0213"):
     prev_id2 = rec_id2
     # calculate offset from 48
     currRec += (rec_id2-48)//16
+    if fixes == "DL002":
+        currRec = 0
+
     # write data
     data[currHeader][1][currRec][1] = rec_bytes
     # already read record count
@@ -387,6 +393,7 @@ def readXLB(file_path: str, encoding:str="shift_jisx0213"):
         rec_id2 = bytesAsLEInt(f.read(4))
         rec_size = bytesAsLEInt(f.read(4))
         rec_bytes = f.read(rec_size)
+        if debug_print: print("i=" + str(i) + "|value=" + bytesAsString(rec_bytes))
         # calculate difference between two records
         add = (rec_id2 - prev_id2)//16
        
@@ -399,42 +406,61 @@ def readXLB(file_path: str, encoding:str="shift_jisx0213"):
             currHeader += 1
             currRec = add-empty_old-3
                         
-            #print("new header=" + str(currHeader) + "| currRec=" + str(currRec))
-            #print("short header test:" + str(currRec) + "?>" + str(data[currHeader][0][1]))
+            if debug_print: print("new header=" + str(currHeader) + "| currRec=" + str(currRec))
+            if debug_print: print("short header test:" + str(currRec) + "?>" + str(data[currHeader][0][1]))
             
             #crutches for places where format is apparently not respected
-            if (rec_id2 == 108184 and prev_id2 == 108120):
-                currRec = 0
-                #print("StageInfo->ResultInfo transition fix")
-            if (rec_id2 == 157496 and prev_id2 == 157368):
-                currRec = 0
-                #print("WeaponRDInfo->GenericNames transition fix")            
-            if (rec_id2 == 160312 and prev_id2 == 160248):
-                currRec = 0
-                #print("JobInfo->VehicleDev transition fix") 
-            if (rec_id2 == 168600 and prev_id2 == 168472):
-                currRec = 0
-                #print("ForceInfo->CharacterEach transition fix") 
-            if (rec_id2 == 177416 and prev_id2 == 175880):
-                currRec = 1
-                #print("VehicleAffiliation->Ranks transition fix")
-            if (rec_id2 == 174456 and prev_id2 == 172856):
-                currRec = 0
-                #print("CharacterEach->VehicleEach transition fix")
-             
+            if fixes == "game_info.mxe":
+                if (rec_id2 == 108184 and prev_id2 == 108120):
+                    currRec = 0
+                    if debug_print: print("StageInfo->ResultInfo transition fix")
+                if (rec_id2 == 157496 and prev_id2 == 157368):
+                    currRec = 0
+                    if debug_print: print("WeaponRDInfo->GenericNames transition fix")            
+                if (rec_id2 == 160312 and prev_id2 == 160248):
+                    currRec = 0
+                    if debug_print: print("JobInfo->VehicleDev transition fix") 
+                if (rec_id2 == 168600 and prev_id2 == 168472):
+                    currRec = 0
+                    if debug_print: print("ForceInfo->CharacterEach transition fix") 
+                if (rec_id2 == 177416 and prev_id2 == 175880):
+                    currRec = 1
+                    if debug_print: print("VehicleAffiliation->Ranks transition fix")
+                if (rec_id2 == 174456 and prev_id2 == 172856):
+                    currRec = 0
+                    if debug_print: print("CharacterEach->VehicleEach transition fix")
+            if fixes == "DL006":
+                if(rec_id2 == 648 and prev_id2 == 584) or (rec_id2 == 712 and prev_id2 == 648):
+                    currRec = 0
+                    if debug_print: print("DLC006 transition fix")
+            if fixes == "DL001":
+                if debug_print: print("DLC001 transition fix")
+                if currHeader == 8:
+                    currRec = 0
+                if currHeader == 9:
+                    currRec = 1
+                if currHeader == 10:
+                    currRec = 1
+            if fixes == "DL002":
+                if debug_print: print("DLC002 transition fix")
+                if currHeader == 4:
+                    currRec = 0
+                if currHeader == 5:
+                    currRec = 0
+
             # re-check for [normally] small empty type inbetween two
-            while(currRec > data[currHeader][0][1]):
+            while(currRec >= data[currHeader][0][1]):
                 currRec = currRec-(data[currHeader][0][1]-1)-3
                 currHeader += 1
-                #print("new header/short skip=" + str(currHeader) + "| currRec=" + str(currRec))
+                if debug_print:print("new header/short skip=" + str(currHeader) + "| currRec=" + str(currRec))
 
 
-        #print("currHeader=" + str(currHeader) + " | currRec=" + str(currRec))
+        if debug_print: print("currHeader=" + str(currHeader) + " | currRec=" + str(currRec))
         data[currHeader][1][currRec][1] = rec_bytes
-        
+        if debug_print: print("assigned id:" + str(data[currHeader][1][currRec][0]) + " | string=" + bytesAsString(data[currHeader][1][currRec][1]))
         prev_id2 = rec_id2
         i = i+1
-    #print("Done")
+    print("Done")
     return data
 
 def findByIDInXLB(data: list, id: int) -> bytes:
@@ -532,14 +558,16 @@ def readMXEFile(mxe_path: str, templates: list, mxe_settings: dict = MXE_SETTING
                         int_addr = bytesAsLEInt(raw_addr) if dt == "<pi" else bytesAsBEInt(raw_addr)
                         val = bytes(readZeroDelBytes(f, followAddress(int_addr), f.tell()))
                         entry[4].append([raw_addr, val])
-                        done = True                       
+                        done = True
                     if not done:
                         entry[4].append(f.read(DataTypes.get(dt)))
                 else:
                     print("Illegal template definition encountered and will be skipped: Field '" + dt + ":" + name + "' in template " + template[0])
 
         except IndexError:
-            print("Template not found for: '"+ entry[2][1].split(':')[0] + "', entry "+ str(n) + " will be skipped")
+            print("Template not found for: '", end='')
+            print(entry[2][1].split(':')[0].encode('shift_jisx0213'), end = '')
+            print("', entry "+ str(n) + " will be skipped")
         n += 1
 
     print("Done, total entries read: " + str(n))
@@ -607,9 +635,13 @@ def writeMXEFile(mxe_path: str, main_table: list, templates: list, mxe_settings:
                             mylog.write("Illegal template definition encountered and will be skipped: Field '" + dt + ":" + name + "' in template " + str(template[0]))
                     i += 1
             except IndexError:
-                print("Template not found for: '"+ entry[2][1].split(':')[0] + "', entry "+ str(n) + " will be skipped")
+                print("Template not found for: '", end='')
+                print(entry[2][1].split(':')[0].encode('shift_jisx0213'), end = '')
+                print("', entry "+ str(n) + " will be skipped")
                 if debug:
-                    mylog.write("Template not found for: '"+ entry[2][1].split(':')[0] + "', entry "+ str(n) + " will be skipped")
+                    mylog.write("Template not found for: '")
+                    #mylog.write(entry[2][1].split(':')[0].encode('shift_jisx0213'))
+                    mylog.write("', entry "+ str(n) + " will be skipped")
             n += 1
 
         print("Done. Wrote " + str(n) + " entries.")
@@ -624,7 +656,14 @@ def writeMXEtoCSV(main_table: list, templates:list, out_csv_directory: str, xlb_
 
     # read xlb for name resolution if needed
     if mxe_settings.get("RESOLVE_XLB_STRINGS"):
-        xlb_list = readXLB(xlb_path)
+        if xlb_path.endswith("DL001_text_mx.xlb"):
+            xlb_list = readXLB(file_path=xlb_path, fixes="DL001")
+        elif xlb_path.endswith("DL002_text_mx.xlb"):
+            xlb_list = readXLB(file_path=xlb_path, fixes="DL002", debug_print=True)
+        elif xlb_path.endswith("DL006_text_mx.xlb"):
+            xlb_list = readXLB(file_path=xlb_path, fixes="DL006")    
+        else:
+            xlb_list = readXLB(xlb_path)
 
     # templates actually found in data
     uniq_templates = { str(entry[2][1].split(':')[0]) for entry in main_table }
@@ -632,7 +671,10 @@ def writeMXEtoCSV(main_table: list, templates:list, out_csv_directory: str, xlb_
     for templ_name in uniq_templates:
         template_list = [ s for s in templates if s[0] == templ_name]
         if len(template_list) == 0:
-            print("No templates found for record type: " + templ_name + ". No CSV will be written")
+            #print("No templates found for record type: " + templ_name + ". No CSV will be written")
+            print("Template not found for: '", end='')
+            print(templ_name.encode('shift_jisx0213'), end = '')
+            print(". No CSV will be written")
             continue
         out_csv_file = os.path.join(out_csv_directory, templ_name + ".csv")
         with open(out_csv_file, 'w', newline='', encoding='shift-jisx0213') as out_csv:
@@ -667,7 +709,7 @@ def writeMXEtoCSV(main_table: list, templates:list, out_csv_directory: str, xlb_
                                         row.append(data[1])
                                 done = True
                             # xlb pointer
-                            if template[1][i][0] == "<pi" or template[1][i][0] == ">pi":    
+                            if template[1][i][0] == "<pi" or template[1][i][0] == ">pi":
                                 if output_modifiers.get("FORCE_RAW_XLB_POINTERS"):
                                     if mxe_settings.get("RESOLVE_XLB_POINTERS") == False:
                                         row.append(bytesToText(data, template[1][i][0]))
@@ -679,7 +721,13 @@ def writeMXEtoCSV(main_table: list, templates:list, out_csv_directory: str, xlb_
                                     else:
                                         if mxe_settings.get("RESOLVE_XLB_STRINGS"):
                                             if output_modifiers.get("FORCE_XLB_IDS"):
-                                                row.append(bytesToText(data, template[1][i][0]))
+                                                if data[1] != b'':
+                                                    try:
+                                                        row.append(int( data[1] ))
+                                                    except ValueError:
+                                                        row.append(bytesToText(data[1], "s").replace("\n", "\\LF"))
+                                                else:
+                                                    row.append("")
                                             else:
                                                 if data[1] != b'':
                                                     try:
@@ -695,6 +743,16 @@ def writeMXEtoCSV(main_table: list, templates:list, out_csv_directory: str, xlb_
                                                     row.append("")
                                         else:
                                             row.append(bytesToText(data[1], "s").replace("\n", "\\LF"))
+                                done = True
+                            #direct xlb ID
+                            if template[1][i][0] == "<ip" or template[1][i][0] == ">ip":
+                                if mxe_settings.get("RESOLVE_XLB_STRINGS"):
+                                    a = bytesAsLEInt( data ) if template[1][i][0] == "<ip" else bytesAsBEInt( data )
+                                    res = findByIDInXLB(xlb_list, a)
+                                    if res != '' and res != None:
+                                        row.append(bytesToText(res, "s").replace("\n", "\\LF"))
+                                    else:
+                                        row.append("")
                                 done = True
                             # non-pointer data
                             if not done:
@@ -792,12 +850,16 @@ else:
                 OUTPUT_MODIFIERS[name] = data['OUTPUT_MODIFIERS'][name]
 
 if args.template_csv_path is None:
-    template_path=os.path.join(os.path.dirname(args.mxe_path),'VlMx_entry_templates.csv')
+    #template_path=os.path.join(os.path.dirname(args.mxe_path),'VlMx_entry_templates.csv')
+    template_path=os.path.join(os.path.dirname(os.path.realpath(__file__)),'VlMx_entry_templates.csv')
     print("No template specified, defaulting to: " + template_path)
     
 if args.csv_dir is None:
     csv_directory=os.path.splitext(args.mxe_path)[0]
     print("No CSV directory specified, defaulting to: " + csv_directory)
+else:
+    csv_directory = args.csv_dir
+    print("CSV directory specified: " + csv_directory)
 
 if args.single_csv is not None:
     csv_path = args.single_csv
@@ -834,6 +896,7 @@ try:
     main_table = readMXEFile(mxe_path, templates)
     print("Done")
 except:
+    print("Error:", sys.exc_info())
     print("Failed, exiting")
     exit()
 
