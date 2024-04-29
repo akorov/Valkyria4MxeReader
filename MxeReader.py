@@ -379,7 +379,7 @@ def readXLB(file_path: str, encoding:str="shift_jisx0213", fixes:str="game_info.
     prev_id2 = rec_id2
     # calculate offset from 48
     currRec += (rec_id2-48)//16
-    if fixes == "DL002":
+    if fixes == "DL002" or fixes == "DL003":
         currRec = 0
 
     # write data
@@ -407,7 +407,9 @@ def readXLB(file_path: str, encoding:str="shift_jisx0213", fixes:str="game_info.
             currRec = add-empty_old-3
                         
             if debug_print: print("new header=" + str(currHeader) + "| currRec=" + str(currRec))
-            if debug_print: print("short header test:" + str(currRec) + "?>" + str(data[currHeader][0][1]))
+            if debug_print: 
+                if currRec >= 0: print("short header test:" + str(currRec) + "?>" + str(data[currHeader][0][1]))
+                else: print("currRec < 0!")
             
             #crutches for places where format is apparently not respected
             if fixes == "game_info.mxe":
@@ -429,25 +431,37 @@ def readXLB(file_path: str, encoding:str="shift_jisx0213", fixes:str="game_info.
                 if (rec_id2 == 174456 and prev_id2 == 172856):
                     currRec = 0
                     if debug_print: print("CharacterEach->VehicleEach transition fix")
+            
+            if fixes == "DL001":
+                if currHeader == 8:
+                    currRec = 0
+                    if debug_print: print("DLC001 transition fix header 8")
+                if currHeader == 9:
+                    currRec = 1
+                    if debug_print: print("DLC001 transition fix header 9")
+                if currHeader == 10:
+                    currRec = 1
+                    if debug_print: print("DLC001 transition fix header 10")
+            if fixes == "DL002":
+                if currHeader == 4:
+                    currRec = 0
+                    if debug_print: print("DLC002 transition fix header 4")
+                if currHeader == 5:
+                    currRec = 0
+                    if debug_print: print("DLC002 transition fix header 5")
+            if fixes == "DL003":
+                if currHeader == 4:
+                    currRec = 0
+                    if debug_print: print("DLC003 transition fix header 4")
+                if currHeader == 6:
+                    currRec = 0
+                    if debug_print: print("DLC003 transition fix header 6")
+                if currRec < 0:
+                    currRec = 0
             if fixes == "DL006":
                 if(rec_id2 == 648 and prev_id2 == 584) or (rec_id2 == 712 and prev_id2 == 648):
                     currRec = 0
                     if debug_print: print("DLC006 transition fix")
-            if fixes == "DL001":
-                if debug_print: print("DLC001 transition fix")
-                if currHeader == 8:
-                    currRec = 0
-                if currHeader == 9:
-                    currRec = 1
-                if currHeader == 10:
-                    currRec = 1
-            if fixes == "DL002":
-                if debug_print: print("DLC002 transition fix")
-                if currHeader == 4:
-                    currRec = 0
-                if currHeader == 5:
-                    currRec = 0
-
             # re-check for [normally] small empty type inbetween two
             while(currRec >= data[currHeader][0][1]):
                 currRec = currRec-(data[currHeader][0][1]-1)-3
@@ -659,9 +673,11 @@ def writeMXEtoCSV(main_table: list, templates:list, out_csv_directory: str, xlb_
         if xlb_path.endswith("DL001_text_mx.xlb"):
             xlb_list = readXLB(file_path=xlb_path, fixes="DL001")
         elif xlb_path.endswith("DL002_text_mx.xlb"):
-            xlb_list = readXLB(file_path=xlb_path, fixes="DL002", debug_print=True)
+            xlb_list = readXLB(file_path=xlb_path, fixes="DL002")
+        elif xlb_path.endswith("DL003_text_mx.xlb"):
+            xlb_list = readXLB(file_path=xlb_path, fixes="DL003")
         elif xlb_path.endswith("DL006_text_mx.xlb"):
-            xlb_list = readXLB(file_path=xlb_path, fixes="DL006")    
+            xlb_list = readXLB(file_path=xlb_path, fixes="DL006")
         else:
             xlb_list = readXLB(xlb_path)
 
