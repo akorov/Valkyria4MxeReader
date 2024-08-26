@@ -806,7 +806,8 @@ def applyCSVtoMXE(main_table: list, templates:list, csv_path: str)-> list:
                             print("CSV idx=" + str(row[0]) + ": skipping mismatched datatype - template=" + dt + "; csv header=" + header_row[i][0])
                         else:
                             if dt == "<p" or dt == ">p" or dt == "<pi" or dt == ">pi" or dt == "<ip" or dt == ">ip":
-                                print("CSV idx=" + str(row[0]) + ", col=" + str(i) + ": pointer datatype, skipping")
+                                #print("CSV idx=" + str(row[0]) + ", col=" + str(i) + ": pointer datatype, skipping")
+                                a=1
                             else:
                                 b = objToBytes(row[2+i], dt)
                                 if entry[i] != b:
